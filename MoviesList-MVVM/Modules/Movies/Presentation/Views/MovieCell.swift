@@ -10,29 +10,29 @@ import Kingfisher
 
 class MovieCell: UICollectionViewCell {
 
-  private let imageView: UIImageView = {
-    let imageView = UIImageView()
-    imageView.contentMode = .scaleToFill
-    imageView.clipsToBounds = true
-    imageView.translatesAutoresizingMaskIntoConstraints = false
-    return imageView
+  private let posterImageView: UIImageView = {
+    let posterImageView = UIImageView()
+    posterImageView.contentMode = .scaleToFill
+    posterImageView.clipsToBounds = true
+    posterImageView.translatesAutoresizingMaskIntoConstraints = false
+    return posterImageView
   }()
 
   private let titleLabel: UILabel = {
-    let label = UILabel()
-    label.textAlignment = .center
-    label.numberOfLines = 0
-    label.lineBreakMode = .byWordWrapping
-    label.translatesAutoresizingMaskIntoConstraints = false
-    return label
+    let titleLabel = UILabel()
+    titleLabel.textAlignment = .center
+    titleLabel.numberOfLines = 0
+    titleLabel.lineBreakMode = .byWordWrapping
+    titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    return titleLabel
   }()
 
   private let dateLabel: UILabel = {
-    let label = UILabel()
-    label.textAlignment = .center
-    label.numberOfLines = 0
-    label.translatesAutoresizingMaskIntoConstraints = false
-    return label
+    let dateLabel = UILabel()
+    dateLabel.textAlignment = .center
+    dateLabel.numberOfLines = 0
+    dateLabel.translatesAutoresizingMaskIntoConstraints = false
+    return dateLabel
   }()
 
   private let genresScrollView: UIScrollView = {
@@ -43,29 +43,29 @@ class MovieCell: UICollectionViewCell {
   }()
 
   private let genresStackView: UIStackView = {
-    let stackView = UIStackView()
-    stackView.axis = .horizontal
-    stackView.spacing = 4
-    stackView.alignment = .center
-    stackView.distribution = .equalSpacing
-    stackView.translatesAutoresizingMaskIntoConstraints = false
-    return stackView
+    let genresStackView = UIStackView()
+    genresStackView.axis = .horizontal
+    genresStackView.spacing = 4
+    genresStackView.alignment = .center
+    genresStackView.distribution = .equalSpacing
+    genresStackView.translatesAutoresizingMaskIntoConstraints = false
+    return genresStackView
   }()
 
-  private lazy var stackView: UIStackView = {
-    let stackView = UIStackView(arrangedSubviews: [titleLabel, dateLabel, genresScrollView])
-    stackView.axis = .vertical
-    stackView.spacing = 8
-    stackView.alignment = .fill
-    stackView.distribution = .fill
-    stackView.translatesAutoresizingMaskIntoConstraints = false
-    return stackView
+  private lazy var containerStackView: UIStackView = {
+    let containerStackView = UIStackView(arrangedSubviews: [titleLabel, dateLabel, genresScrollView])
+    containerStackView.axis = .vertical
+    containerStackView.spacing = 8
+    containerStackView.alignment = .fill
+    containerStackView.distribution = .fill
+    containerStackView.translatesAutoresizingMaskIntoConstraints = false
+    return containerStackView
   }()
 
   override init(frame: CGRect) {
     super.init(frame: frame)
-    contentView.addSubview(imageView)
-    contentView.addSubview(stackView)
+    contentView.addSubview(posterImageView)
+    contentView.addSubview(containerStackView)
 
     // Adding border to the contentView
     contentView.layer.borderWidth = 1
@@ -76,15 +76,15 @@ class MovieCell: UICollectionViewCell {
     genresScrollView.addSubview(genresStackView)
 
     NSLayoutConstraint.activate([
-      imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-      imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-      imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-      imageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
+      posterImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+      posterImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+      posterImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+      posterImageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
 
-      stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
-      stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-      stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-      stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+      containerStackView.topAnchor.constraint(equalTo: posterImageView.bottomAnchor, constant: 8),
+      containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+      containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+      containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
 
       genresScrollView.heightAnchor.constraint(equalToConstant: 30),
 
@@ -101,7 +101,7 @@ class MovieCell: UICollectionViewCell {
   }
 
   func configure(with movie: MovieItem) {
-    imageView.kf.setImage(with: URL(string: movie.posterPath))
+    posterImageView.kf.setImage(with: URL(string: movie.posterPath))
     titleLabel.text = movie.title
     dateLabel.text = movie.releaseDate.toString(format: .yearMonthDay)
 
