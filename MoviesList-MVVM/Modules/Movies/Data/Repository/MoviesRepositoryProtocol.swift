@@ -11,4 +11,5 @@ protocol MoviesRepositoryProtocol: MoviesRepositoryGettable { }
 
 protocol MoviesRepositoryGettable {
   func getMovies() async throws -> MoviesRepositoryModel?
+  func getSearchedMovies(with searchedText: String) async throws -> MoviesRepositoryModel?
 }

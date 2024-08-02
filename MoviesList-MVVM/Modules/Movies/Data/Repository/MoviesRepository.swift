@@ -30,7 +30,10 @@ final class MoviesRepository {
         title: movie.title,
         releaseDate: movie.releaseDate?.toDate(),
         genreIDs: movie.genreIDS,
-        id: movie.id
+        id: movie.id,
+        voteAverage: movie.voteAverage,
+        voteCount: movie.voteCount,
+        overview: movie.overview
       )
     }
   }
@@ -58,4 +61,18 @@ extension  MoviesRepository: MoviesRepositoryProtocol {
     }
     return movies
   }
+
+  func getSearchedMovies(with searchedText: String) async throws -> MoviesRepositoryModel? {
+    var movies: MoviesRepositoryModel?
+    do {
+      movies = convert(try await client.getSearchedMovies(with: searchedText))
+    } catch {
+      guard let error = error as? SessionDataTaskError else {
+        throw RepositoryError.unowned
+      }
+      throw RepositoryError(error: error)
+    }
+    return movies
+  }
+
 }

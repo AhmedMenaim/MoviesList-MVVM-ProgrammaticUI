@@ -9,6 +9,7 @@ import Foundation
 
 protocol MoviesAPIClientProtocol {
   func getMovies() async throws -> MoviesNetworkResponse?
+  func getSearchedMovies(with searchedText: String) async throws -> MoviesNetworkResponse?
 }
 
 class MoviesAPIClient {
@@ -22,6 +23,13 @@ class MoviesAPIClient {
 extension MoviesAPIClient: MoviesAPIClientProtocol {
   func getMovies() async throws -> MoviesNetworkResponse? {
     let request = MoviesAPIRequest.getMovies
+    var movies: MoviesNetworkResponse?
+    movies = try await client.perform(request)
+    return movies
+  }
+
+  func getSearchedMovies(with searchedText: String) async throws -> MoviesNetworkResponse? {
+    let request = MoviesAPIRequest.getSearchedMovies(searchText: searchedText)
     var movies: MoviesNetworkResponse?
     movies = try await client.perform(request)
     return movies
