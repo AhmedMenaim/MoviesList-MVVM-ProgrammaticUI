@@ -22,35 +22,33 @@ class MoviesViewController: UIViewController {
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-  
-  // MARK: - Privates
-  private
-  func bindViews() {
-    viewModel.$movies.sink { movies in
-      print(movies)
-      DispatchQueue.main.async { [weak self] in
-        self?.moviesCollectionView.reloadData()
-      }
-    }
-    .store(in: &subscriptions)
-  }
+
+  // MARK: - SearchController
+  private lazy var searchController: UISearchController = {
+    let searchController = UISearchController(searchResultsController: nil)
+    searchController.searchResultsUpdater = self
+    searchController.obscuresBackgroundDuringPresentation = false
+    searchController.searchBar.placeholder = "Search Movie Name"
+    searchController.searchBar.delegate = self
+    return searchController
+  }()
 
   // MARK: - CollectionView
   private lazy var moviesCollectionView: UICollectionView = {
-    let collectionView = UICollectionView(
+    let moviesCollectionView = UICollectionView(
       frame: .zero,
       collectionViewLayout: UICollectionViewCompositionalLayout { sectionIndex, _ in
         MoviesViewController.createCompositionalLayout()
       }
     )
-    collectionView.translatesAutoresizingMaskIntoConstraints = false
-    collectionView.register(
+    moviesCollectionView.translatesAutoresizingMaskIntoConstraints = false
+    moviesCollectionView.register(
       MovieCell.self,
       forCellWithReuseIdentifier: MovieCell.identifier
     )
-    collectionView.delegate = self
-    collectionView.dataSource = self
-    return collectionView
+    moviesCollectionView.delegate = self
+    moviesCollectionView.dataSource = self
+    return moviesCollectionView
   }()
 
   // MARK: - CompositionalLayout
@@ -99,11 +97,23 @@ class MoviesViewController: UIViewController {
     let section = NSCollectionLayoutSection(group: entireLayoutGroup)
     return section
   }
-  
+
+  // MARK: - Privates
+  private func bindViews() {
+    viewModel.$movies.sink { movies in
+      DispatchQueue.main.async { [weak self] in
+        self?.moviesCollectionView.reloadData()
+      }
+    }
+    .store(in: &subscriptions)
+  }
+
   // MARK: - Life Cycle
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
+    navigationItem.searchController = searchController
+    navigationItem.hidesSearchBarWhenScrolling = false
     view.addSubview(moviesCollectionView)
     NSLayoutConstraint.activate([
       moviesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -114,6 +124,35 @@ class MoviesViewController: UIViewController {
     Task {
       await viewModel.viewMovies()
       bindViews()
+    }
+  }
+}
+
+// MARK: - UISearchResultsUpdating
+extension MoviesViewController: UISearchResultsUpdating {
+  func updateSearchResults(for searchController: UISearchController) {
+    guard
+      let searchText = searchController.searchBar.text,
+      !searchText.isEmpty
+    else { return }
+    viewModel.isSearchActive = true
+    viewModel.searchText = searchText
+    Task {
+      await viewModel.searchMovies(with: searchText)
+      DispatchQueue.main.async { [weak self] in
+        self?.moviesCollectionView.reloadData()
+      }
+    }
+  }
+}
+
+// MARK: - UISearchBarDelegate
+extension MoviesViewController: UISearchBarDelegate {
+  func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+    viewModel.searchText = ""
+    viewModel.isSearchActive = false
+    Task {
+      await viewModel.viewMovies()
     }
   }
 }
@@ -129,10 +168,10 @@ extension MoviesViewController: UICollectionViewDataSource {
   }
 
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    guard 
+    guard
       let cell = collectionView.dequeueReusableCell(
         withReuseIdentifier: MovieCell.identifier,
-                                                  for: indexPath
+        for: indexPath
       ) as? MovieCell
     else {
       return UICollectionViewCell()

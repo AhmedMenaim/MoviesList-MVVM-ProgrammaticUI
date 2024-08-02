@@ -20,8 +20,13 @@ class MoviesModuleFactory {
       genresRepository: genresRepository,
       sharedRepository: MovieSharedRepository.shared
     )
-    let viewModel = MoviesViewModel(useCase: useCase)
+    let router = MoviesRouter()
+    let viewModel = MoviesViewModel(
+      useCase: useCase,
+      router: router
+    )
     let viewController = MoviesViewController(viewModel: viewModel)
+    router.viewController = viewController
     return viewController
   }
 }
