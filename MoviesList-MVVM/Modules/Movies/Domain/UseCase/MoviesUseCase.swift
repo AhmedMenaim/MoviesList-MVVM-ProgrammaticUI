@@ -99,13 +99,25 @@ extension MoviesUseCase: MoviesUseCaseProtocol {
     guard let moviesItem = try await moviesRepository.getMovies() else {
       return MoviesItems()
     }
-    print(movies)
     let returnedMovies = await convert(moviesItem)
     movies = returnedMovies.movies
     return returnedMovies
   }
 
+  func search(with searchText: String) async throws -> MoviesItems {
+    guard let moviesItem = try await moviesRepository.getSearchedMovies(with: searchText) else {
+      return MoviesItems()
+    }
+    let returnedMovies = await convert(moviesItem)
+    if !movies.isEmpty {
+      movies = returnedMovies.movies
+    }
+    return returnedMovies
+  }
+
   func selectMovie(at row: Int) {
+    guard !movies.isEmpty
+    else { return }
     sharedRepository.save(
       movie: convert(movies[row])
     )

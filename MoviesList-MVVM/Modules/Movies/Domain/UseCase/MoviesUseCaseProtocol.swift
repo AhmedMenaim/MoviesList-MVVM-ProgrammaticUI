@@ -9,6 +9,7 @@ import Foundation
 
 protocol MoviesUseCaseProtocol {
   func fetchMovies() async throws -> MoviesItems
+  func search(with searchText: String) async throws -> MoviesItems
   func selectMovie(at row: Int)
 }
 
