@@ -144,5 +144,7 @@ extension MoviesViewController: UICollectionViewDataSource {
 
 // MARK: - UICollectionViewDelegate
 extension MoviesViewController: UICollectionViewDelegate {
-
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    viewModel.didSelectItem(at: indexPath)
+  }
 }

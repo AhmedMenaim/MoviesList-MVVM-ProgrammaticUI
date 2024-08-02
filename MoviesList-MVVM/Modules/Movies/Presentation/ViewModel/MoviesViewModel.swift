@@ -26,4 +26,8 @@ final class MoviesViewModel: ObservableObject {
       print(error) // WILL BE HANDLED
     }
   }
+
+  func didSelectItem(at indexPath: IndexPath) {
+    useCase.selectMovie(at: indexPath.item)
+  }
 }

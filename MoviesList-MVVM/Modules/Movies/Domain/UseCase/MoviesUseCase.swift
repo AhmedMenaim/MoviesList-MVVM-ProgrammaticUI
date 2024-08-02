@@ -8,19 +8,26 @@
 import Foundation
 
 final class MoviesUseCase {
+  // MARK: - Private Vars
+  private var movies: [MovieItem] = []
+
   // MARK: - Dependencies
   private var moviesRepository: MoviesRepositoryProtocol
   private var genresRepository: GenreRepositoryProtocol
+  private var sharedRepository: MovieSharedRepositoryProtocol
 
   init(
     moviesRepository: MoviesRepositoryProtocol,
-    genresRepository: GenreRepositoryProtocol
+    genresRepository: GenreRepositoryProtocol,
+    sharedRepository: MovieSharedRepositoryProtocol
   ) {
     self.moviesRepository = moviesRepository
     self.genresRepository = genresRepository
+    self.sharedRepository = sharedRepository
   }
 
 
+  // MARK: - Privates
   private func convert(_ repositoryItem: [MovieRepositoryModel]?) async -> [MovieItem] {
     var genres: [Int?: String?]?
     do {
@@ -58,6 +65,19 @@ final class MoviesUseCase {
     )
   }
 
+  private func convert(_ movie: MovieItem) -> MovieSharedItem {
+    MovieSharedItem(
+      posterPath: movie.posterPath,
+      title: movie.title,
+      releaseDate: movie.releaseDate,
+      genres: movie.genres,
+      id: movie.id,
+      voteAverage: movie.voteAverage,
+      voteCount: movie.voteCount,
+      overview: movie.overview
+    )
+  }
+
   private
   func fetchStringGenres(_ genreDictionary: [Int?: String?], _ usedIDs: [Int]?) -> [String] {
     guard let usedIDs else { return [] }
@@ -76,10 +96,18 @@ final class MoviesUseCase {
 // MARK: - MoviesUseCaseProtocol
 extension MoviesUseCase: MoviesUseCaseProtocol {
   func fetchMovies() async throws -> MoviesItems {
-    guard let movies = try await moviesRepository.getMovies() else {
+    guard let moviesItem = try await moviesRepository.getMovies() else {
       return MoviesItems()
     }
     print(movies)
-    return await convert(movies)
+    let returnedMovies = await convert(moviesItem)
+    movies = returnedMovies.movies
+    return returnedMovies
+  }
+
+  func selectMovie(at row: Int) {
+    sharedRepository.save(
+      movie: convert(movies[row])
+    )
   }
 }

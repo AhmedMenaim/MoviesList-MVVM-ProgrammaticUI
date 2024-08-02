@@ -17,7 +17,8 @@ class MoviesModuleFactory {
     let genresRepository = GenreRepository(client: genresClient)
     let useCase = MoviesUseCase(
       moviesRepository: moviesRepository,
-      genresRepository: genresRepository
+      genresRepository: genresRepository,
+      sharedRepository: MovieSharedRepository.shared
     )
     let viewModel = MoviesViewModel(useCase: useCase)
     let viewController = MoviesViewController(viewModel: viewModel)
